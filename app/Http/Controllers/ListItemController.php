@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\ListItem;
 use App\Models\ListUnit;
 use App\Traits\AjaxableTrait;
+use Conner\Tagging\Model\Tag;
 use App\Http\Requests\ListItemRequest;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListItemController extends Controller
 {
@@ -17,7 +19,21 @@ class ListItemController extends Controller
     public function index(ListUnit $listUnit)
     {
         $this->authorize('viewAny', [ListItem::class, $listUnit]);
-        return view('list-items.index', compact('listUnit'));
+        if (request()->ajax()) {
+            $search = request()->search;
+            $tags = request()->tags;
+            $listItems = $listUnit->items()
+                ->when($search, function (Builder $query, string $search) {
+                    $query->where('name', 'like', "%{$search}%");
+                })
+                ->when($tags, function (Builder $query, array $tags) {
+                    $query->withAllTags($tags);
+                })
+                ->get();
+            return view('list-items.row', compact('listItems'));
+        }
+        $tags = Tag::get();
+        return view('list-items.index', compact('listUnit', 'tags'));
     }
 
     /**
@@ -36,7 +52,6 @@ class ListItemController extends Controller
      */
     public function update(ListItemRequest $request, ListUnit $listUnit, ListItem $listItem)
     {
-        // dd($listItem, $listUnit);
         $this->authorize('update', $listUnit, [$listItem]);
         if ($this->isAjaxRequest()) {
             return $listItem->update($request->validated());

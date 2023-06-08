@@ -1,6 +1,8 @@
 import './bootstrap';
 import jQuery from 'jquery';
 window.$ = jQuery;
+import Tags from "bootstrap5-tags/tags";
+Tags.init();
 
 $.ajaxSetup({
     headers: {
@@ -42,11 +44,12 @@ $(function(){
         var name = $('#name').val()
         var path = $('.list-all').data('path')
         $.post(path, {name:name}, function(listUnit){
-            var imgBtn = ''
-            var listName = `<span class="list-name">${listUnit.name}</span>`
+            var imgBtn = '', tagsDiv = ''
+            var listName = `<span class="list-name w-25">${listUnit.name}</span>`
             if (~path.indexOf('list-units')) {
                 listName = `<a href="list-items/${listUnit.id}" class="link-dark link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover">
                                 <span class="list-name">${listUnit.name}</span>
+                                <small><span class="me-2 shared-with">Элементов 0</span></small>
                             </a>`
             } else {
                 imgBtn = `
@@ -54,12 +57,25 @@ $(function(){
                         <img src="" alt="" class="bg-light img-thumbnail object-fit-cover" style="width: 150px; height: 150px; image: cover">
                         <input type="file" name="image" data-id="${listUnit.id}" style="display: none">
                     </label>`
+                tagsDiv = `
+                    <div class="d-flex align-items-center w-50">
+                        <select class="order-3" id="tags-input" name="tags[]" data-selected="" multiple data-allow-new="true" data-allow-clear="true">
+                            <option selected disabled hidden value="">Введите теги</option>
+                        </select>
+                        <div class="tag text-success order-2 ms-2" style="display: none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+                                <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    `
             }
             $('.added-li').remove()
             $('.list-all').append(`
                 <li class="list-group-item bg-white d-flex justify-content-between align-items-center">
                     ${imgBtn}
                     ${listName}
+                    ${tagsDiv}
                     <div class="d-flex end-column">
                         <div class="edit-menu" style="cursor: pointer">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
@@ -98,6 +114,7 @@ $(function(){
                     </div>
                 </li>
             `)
+            Tags.init()
         })
     })
 
@@ -289,4 +306,74 @@ $(function(){
             }
         })
     })
+
+    // load tags and if applicable show tag button
+    $('.container').on('click', '.dropdown', function(){
+        var parent = $(this).parent()
+        var select = parent.find('select')
+        if (parent.find('.tag').length > 0) {
+            parent.find('.tag').show()
+        }
+        $.get('/tags', function(tags){
+            if (tags.length > 0) {
+                $.each(tags, function(key, tag){
+                    var selectValues = select.children('option').map(function(key, option){
+                        return option.value || option.innerText
+                    }).get()
+                    if($.inArray(tag, selectValues) == -1) {
+                        select.append(`
+                            <option value="${tag}">${tag}</option>
+                        `)
+                    }
+                })
+            }
+        })
+    })
+
+    // tag list item
+    $('.list-all').on('click', '.tag', function(){
+        var tags = $(this).parent().find("select").val()
+        var listId = $(this).closest('li').data('list_id')
+        var tagButton = $(this)
+        $.post(`/tags/${listId}`, {tags: tags}, function(){
+            tagButton.hide()
+        })
+    })
+
+    // search
+    $('[name="search"]').on('keyup', function(){
+        var searchVal = $(this).val()
+        if (searchVal.length > 2) {
+            var ul = $('.list-all')
+            var listUnit = ul.data('path').split('/').pop()
+            ul.empty()
+            $.get(`/list-items/${listUnit}`, {search: searchVal}, function(result){
+                ul.html(result)
+                Tags.init()
+            })
+        }
+    })
+
+    // filter
+    $('#tags_filter').on('change', function(){
+        var tags = $(this).val()
+        var ul = $('.list-all')
+        var listUnit = ul.data('path').split('/').pop()
+        $.get(`/list-items/${listUnit}`, {tags: tags}, function(result){
+            ul.html(result)
+            Tags.init()
+        })
+    })
 })
+
+// hide tag button or remove newly added empty row
+$(document).on('mouseup', function(e){
+    var tag = $('.tag');
+    var addedRow = $('.added-li')
+    if(!tag.is(e.target) && tag.has(e.target).length === 0){
+        tag.hide();
+    }
+    if(!addedRow.is(e.target) && addedRow.has(e.target).length === 0){
+        addedRow.remove();
+    }
+});

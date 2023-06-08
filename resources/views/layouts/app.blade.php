@@ -29,12 +29,14 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto">
-
+                    <ul class="navbar-nav mx-auto w-75">
+                        @if(request()->routeIs('items.index'))
+                            <input type="text" name="search" class="form-control" placeholder="Поиск">
+                        @endif
                     </ul>
 
                     <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav">
                         <!-- Authentication Links -->
                         @guest
                             @if (Route::has('login'))

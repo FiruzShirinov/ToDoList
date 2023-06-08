@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\ListItem;
 use App\Http\Requests\ImageRequest;
 use App\Traits\AjaxableTrait;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
     use AjaxableTrait;
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(ImageRequest $request, ListItem $listItem)
     {
         if ($this->isAjaxRequest()) {
@@ -22,11 +24,13 @@ class ImageController extends Controller
             } else {
                 $listItem->image()->create(compact('url'));
             }
-
             return $url;
         }
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy(ListItem $listItem)
     {
         if ($this->isAjaxRequest()) {

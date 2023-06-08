@@ -28,7 +28,9 @@
                 <li class="list-group-item bg-white d-flex justify-content-between align-items-center">
                     <a href="{{ route('items.index', $list) }}" class="link-dark link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover">
                         <span class="list-name">{{ $list->name }}</span>
+                        <small><span class="me-2 shared-with">(Элементов {{ $list->items()->count() }})</span></small>
                     </a>
+
                     <div class="d-flex end-column">
                         @if ($list->sharedWithUsers()->exists())
                             <small><em><span class="me-2 shared-with">расшарен с {{ $list->sharedWithUsers->implode('name', ', ') }}</span></em></small>

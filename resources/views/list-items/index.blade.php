@@ -4,14 +4,23 @@
 <div class="container">
 
     <div class="d-flex justify-content-between">
-        <h3 class="mb-2">Элементы списка {{ $listUnit->name }}</h3>
+        <div class="mb-2 d-flex align-items-center w-75">
+            <h3 class="mb-0 w-100">Элементы списка {{ $listUnit->name }}</h3>
+            <select class="text-bg-light" name="tags_filter[]" id="tags_filter" multiple data-allow-clear="true" data-show-all-suggestions="true">
+                <option selected disabled hidden value="">Введите теги для фильтрации</option>
+                @foreach ($tags as $tag)
+                    <option value="{{ $tag->slug }}">{{ $tag->slug }}</option>
+                @endforeach
+            </select>
+        </div>
+
         <a href="{{ route('list-units') }}" class="btn btn-link link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover">Назад</a>
     </div>
 
     <div class="card shadow-sm border-0 mb-4">
         <ul class="list-group list-group-flush list-all" data-path="/list-items/{{ $listUnit->id }}">
             @foreach ($listUnit->items as $item)
-            <li class="list-group-item bg-white d-flex justify-content-between align-items-center">
+            <li class="list-group-item bg-white d-flex justify-content-between align-items-center" data-list_id="{{ $item->id }}">
                 <label class="btn btn-file" title="@if($item->image()->exists())Изменить картинку @else()Добавить картинку@endif">
                     <img src="@if($item->image()->exists()){{ Storage::disk('local')->url("{$item->image->url}") }}@endif" alt="" class="bg-light img-thumbnail object-fit-cover" style="width: 150px; height: 150px; image: cover">
                     <input type="file" name="image" data-id="{{ $item->id }}" style="display: none">
@@ -23,7 +32,21 @@
                         </svg>
                     </div>
                 @endif
-                <span class="list-name">{{ $item->name }}</span>
+                <span class="list-name w-25">{{ $item->name }}</span>
+                <div class="d-flex align-items-center w-50">
+                    <select class="order-3" id="tags-input" name="tags[]" data-selected="{{ $item->tags->pluck('slug') }}" multiple data-allow-new="true" data-allow-clear="true" data-show-all-suggestions="true">
+                        <option selected disabled hidden value="">Введите теги</option>
+                        @forelse($item->tags as $tag)
+                            <option value="{{ $tag->slug }}" selected="selected">{{ $tag->slug }}</option>
+                        @empty
+                        @endforelse
+                    </select>
+                    <div class="tag text-success order-2 ms-2" style="display: none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+                            <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
+                        </svg>
+                    </div>
+                </div>
                 <div class="d-flex end-column">
                     <div class="edit-menu" style="cursor: pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">

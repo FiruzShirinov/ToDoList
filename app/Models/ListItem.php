@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Conner\Tagging\Taggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ListItem extends Model
 {
-    use HasFactory;
+    use HasFactory, Taggable;
 
     /**
      * The attributes that are mass assignable.

@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\ListUnit;
-use App\Http\Requests\ListUnitRequest;
 use App\Traits\AjaxableTrait;
+use App\Http\Requests\ListUnitRequest;
 
 class ListUnitController extends Controller
 {

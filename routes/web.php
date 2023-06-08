@@ -1,14 +1,12 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TagController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ListItemController;
 use App\Http\Controllers\ListUnitController;
-use App\Http\Controllers\UserController;
-use App\Models\ListItem;
-use App\Models\ListUnit;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,7 +43,6 @@ Route::middleware('auth')->group(function(){
         Route::post('/list-items/{listUnit}', 'store');
         Route::patch('/list-items/{listUnit}/{listItem}', 'update');
         Route::delete('/list-items/{listUnit}/{listItem}', 'destroy');
-        Route::post('/upload-image/{listItem}', 'uploadImage');
     });
 
     Route::controller(UserController::class)->group(function(){
@@ -56,26 +53,9 @@ Route::middleware('auth')->group(function(){
         Route::post('/images/{listItem}', 'store');
         Route::delete('/images/{listItem}', 'destroy');
     });
-});
 
-Route::get('/test', function(){
-    $listUnit = ListUnit::first();
-    // dd($listUnit->sharedWithUsers()->pluck('id'));
-
-    $me = User::first();
-    dd(get_class($me));
-    $chuck = User::latest()->first();
-    // dd(
-    //     $user->sharedByMe()->get(),
-    //     $user->sharedWithMe()->get()
-    // );
-    $listUnitsSharedByMe = $me->sharedListUnitsByMe()->get();
-    $listUnitsSharedWithChuck = $chuck->sharedListUnitsWithMe()->get();
-
-    foreach ($listUnitsSharedByMe as $listUnit) {
-        dump($listUnit, $listUnit->pivot->sharedBy->name, $listUnit->pivot->sharedWith->name);
-    }
-    foreach ($listUnitsSharedWithChuck as $listUnit) {
-        dump($listUnit, $listUnit->pivot->sharedBy->name, $listUnit->pivot->sharedWith->name);
-    }
+    Route::controller(TagController::class)->group(function(){
+        Route::get('/tags', 'index');
+        Route::post('/tags/{listItem}', 'store');
+    });
 });

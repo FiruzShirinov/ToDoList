@@ -13,7 +13,9 @@ class ListItemPolicy
      */
     public function viewAny(User $user, ListUnit $listUnit): bool
     {
-        return $user->is(auth()->user()) && ($user->is($listUnit->user) || $listUnit->sharedWithUsers->contains('id', $user->id));
+        return $user->is(auth()->user())
+            && ($user->is($listUnit->user)
+                || $listUnit->sharedWithUsers->contains('id', $user->id));
     }
 
     /**
@@ -21,7 +23,9 @@ class ListItemPolicy
      */
     public function create(User $user, ListUnit $listUnit): bool
     {
-        return $user->is(auth()->user()) && $user->is($listUnit->user);
+        return $user->is(auth()->user())
+            && ($user->is($listUnit->user)
+                || $listUnit->sharedWithUsers->contains('id', $user->id));
     }
 
     /**
@@ -29,7 +33,10 @@ class ListItemPolicy
      */
     public function update(User $user, ListUnit $listUnit, ListItem $listItem): bool
     {
-        return $user->is(auth()->user()) && $user->is($listUnit->user) && $listUnit->is($listItem->listUnit);
+        return $user->is(auth()->user())
+            && ($user->is($listUnit->user)
+                || $listUnit->sharedWithUsers->contains('id', $user->id))
+            && $listUnit->is($listItem->listUnit);
     }
 
     /**
@@ -37,6 +44,9 @@ class ListItemPolicy
      */
     public function delete(User $user, ListUnit $listUnit, ListItem $listItem): bool
     {
-        return $user->is(auth()->user()) && $user->is($listUnit->user) && $listUnit->is($listItem->listUnit);
+        return $user->is(auth()->user())
+            && ($user->is($listUnit->user)
+                || $listUnit->sharedWithUsers->contains('id', $user->id))
+            && $listUnit->is($listItem->listUnit);
     }
 }
